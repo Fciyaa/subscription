@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class AdminMiddleware
 {
@@ -14,7 +15,15 @@ class AdminMiddleware
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
-    {
-        return $next($request);
+{
+    if (!Auth::check()) {
+        return redirect()->route('login');
     }
+
+    if (Auth::user()->role !== 'admin') {
+        abort(403, 'Anda tidak memiliki otoritas! Akses ditolak!');
+    }
+    
+    return $next($request);
+}
 }
